@@ -1,0 +1,24 @@
+{
+    "products": {
+        "0": {
+            "id": 1,
+            "name": "Phở bò chín",
+            "price": 40000
+        },
+        "1": {
+            "id": 2,
+            "name": "Bánh mỳ",
+            "price": 25000
+        },
+        "3": {
+            "id": 4,
+            "name": "Cháo",
+            "price": 10000
+        },
+        "4": {
+            "id": 5,
+            "name": "Bún bò",
+            "price": 45000
+        }
+    }
+}
