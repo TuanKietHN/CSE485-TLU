@@ -1,0 +1,11 @@
+RewriteEngine On
+RewriteBase /tlu/blog/
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.+)$ index.php?url=$1 [QSA,L]
+
+# Cấu hình database
+SetEnv DB_HOST localhost
+SetEnv DB_NAME tlunews
+SetEnv DB_USER root
+SetEnv DB_PASS ""
