@@ -1,0 +1,18 @@
+RewriteEngine On
+RewriteBase /tlu/CSE485-TLU/BTTH/BTTH02/tlunews/
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.+)$ index.php?url=$1 [QSA,L]
+
+# Cấu hình database
+SetEnv DB_HOST localhost
+SetEnv DB_NAME tlunews
+SetEnv DB_USER root
+SetEnv DB_PASS ""
+
+# Cấu hình base URL
+SetEnv BASE_URL "/tlu/tlunews"
+
+# Hiển thị lỗi để debug
+php_flag display_errors on
+php_value error_reporting E_ALL
