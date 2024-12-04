@@ -1,34 +1,19 @@
 <?php
 class ArticleController extends BaseController {
-    private $articleModel;
-    private $categoryModel;
+    protected $articleModel;
+    protected $categoryModel;
     
     public function __construct() {
+        parent::__construct();
+        
         $this->articleModel = new Article();
         $this->categoryModel = new Category();
     }
     
     public function index() {
-        $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
-        $limit = 10;
-        $offset = ($page - 1) * $limit;
-        
-        $options = [
-            'limit' => $limit,
-            'offset' => $offset
-        ];
-        
-        if (isset($_GET['category'])) {
-            $options['category_id'] = (int)$_GET['category'];
-        }
-        
-        $articles = $this->articleModel->findAll($options);
-        $categories = $this->categoryModel->findAll();
-        
+        $articles = $this->articleModel->findAll();
         $this->render('articles/index', [
-            'articles' => $articles,
-            'categories' => $categories,
-            'currentPage' => $page
+            'articles' => $articles
         ]);
     }
     
@@ -43,28 +28,43 @@ class ArticleController extends BaseController {
     }
     
     public function create() {
-        $this->requireLogin();
+        if (!isset($_SESSION['user'])) {
+            $this->redirect('/auth/login');
+        }
         
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $data = [
-                'title' => trim($_POST['title']),
-                'content' => trim($_POST['content']),
-                'category_id' => (int)$_POST['category_id'],
-                'author_id' => $_SESSION['user_id']
-            ];
-            
-            if (empty($data['title']) || empty($data['content'])) {
-                $error = "Vui lòng điền đầy đủ thông tin";
-            } else {
+        $categories = $this->categoryModel->getAll();
+        $this->render('articles/create', [
+            'categories' => $categories
+        ]);
+    }
+    
+    public function store() {
+        if (!isset($_SESSION['user'])) {
+            $this->redirect('/auth/login');
+        }
+        
+        if ($this->isPost()) {
+            try {
+                $data = [
+                    'title' => trim($_POST['title']),
+                    'content' => trim($_POST['content']),
+                    'category_id' => $_POST['category_id'],
+                    'author_id' => $_SESSION['user']['id'],
+                    'excerpt' => substr(strip_tags($_POST['content']), 0, 150),
+                    'status' => 'published',
+                    'slug' => $this->createSlug($_POST['title'])
+                ];
+                
                 if ($this->articleModel->create($data)) {
+                    $_SESSION['success'] = 'Tạo bài viết thành công!';
                     $this->redirect('/articles');
-                } else {
-                    $error = "Có lỗi xảy ra, vui lòng thử lại";
                 }
+            } catch (Exception $e) {
+                $error = $e->getMessage();
             }
         }
         
-        $categories = $this->categoryModel->findAll();
+        $categories = $this->categoryModel->getAll();
         $this->render('articles/create', [
             'categories' => $categories,
             'error' => $error ?? null
@@ -72,34 +72,54 @@ class ArticleController extends BaseController {
     }
     
     public function edit($id) {
-        $this->requireLogin();
+        if (!isset($_SESSION['user'])) {
+            $this->redirect('/auth/login');
+        }
         
         $article = $this->articleModel->findById($id);
-        if (!$article || $article['author_id'] != $_SESSION['user_id']) {
-            $this->render('shared/error');
+        if (!$article) {
+            $this->render('shared/error404');
             return;
         }
         
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $data = [
-                'title' => trim($_POST['title']),
-                'content' => trim($_POST['content']),
-                'category_id' => (int)$_POST['category_id'],
-                'author_id' => $_SESSION['user_id']
-            ];
-            
-            if (empty($data['title']) || empty($data['content'])) {
-                $error = "Vui lòng điền đầy đủ thông tin";
-            } else {
+        if ($article['author_id'] != $_SESSION['user']['id'] && $_SESSION['user']['role'] != 'admin') {
+            $_SESSION['error'] = 'Bạn không có quyền sửa bài viết này!';
+            $this->redirect('/articles');
+        }
+        
+        $categories = $this->categoryModel->getAll();
+        $this->render('articles/edit', [
+            'article' => $article,
+            'categories' => $categories
+        ]);
+    }
+    
+    public function update($id) {
+        if (!isset($_SESSION['user'])) {
+            $this->redirect('/auth/login');
+        }
+        
+        if ($this->isPost()) {
+            try {
+                $data = [
+                    'title' => trim($_POST['title']),
+                    'content' => trim($_POST['content']),
+                    'category_id' => $_POST['category_id'],
+                    'excerpt' => substr(strip_tags($_POST['content']), 0, 150),
+                    'slug' => $this->createSlug($_POST['title'])
+                ];
+                
                 if ($this->articleModel->update($id, $data)) {
-                    $this->redirect("/articles/show/$id");
-                } else {
-                    $error = "Có lỗi xảy ra, vui lòng thử lại";
+                    $_SESSION['success'] = 'Cập nhật bài viết thành công!';
+                    $this->redirect('/articles');
                 }
+            } catch (Exception $e) {
+                $error = $e->getMessage();
             }
         }
         
-        $categories = $this->categoryModel->findAll();
+        $article = $this->articleModel->findById($id);
+        $categories = $this->categoryModel->getAll();
         $this->render('articles/edit', [
             'article' => $article,
             'categories' => $categories,
@@ -108,22 +128,44 @@ class ArticleController extends BaseController {
     }
     
     public function delete($id) {
-        $this->requireLogin();
+        if (!isset($_SESSION['user'])) {
+            $this->redirect('/auth/login');
+        }
         
         $article = $this->articleModel->findById($id);
-        if (!$article || $article['author_id'] != $_SESSION['user_id']) {
-            $this->render('shared/error');
+        if (!$article) {
+            $this->render('shared/error404');
             return;
         }
         
-        if ($this->articleModel->delete($id)) {
+        if ($article['author_id'] != $_SESSION['user']['id'] && $_SESSION['user']['role'] != 'admin') {
+            $_SESSION['error'] = 'Bạn không có quyền xóa bài viết này!';
             $this->redirect('/articles');
-        } else {
-            $error = "Có lỗi xảy ra, vui lòng thử lại";
-            $this->render('articles/show', [
-                'article' => $article,
-                'error' => $error
-            ]);
         }
+        
+        if ($this->articleModel->delete($id)) {
+            $_SESSION['success'] = 'Xóa bài viết thành công!';
+        }
+        
+        $this->redirect('/articles');
+    }
+    
+    public function view($id) {
+        $article = $this->articleModel->findById($id);
+        if (!$article) {
+            $this->render('shared/error404');
+            return;
+        }
+        
+        $this->articleModel->incrementViews($id);
+        
+        $this->render('articles/view', [
+            'article' => $article
+        ]);
+    }
+    
+    private function createSlug($title) {
+        $slug = strtolower(trim(preg_replace('/[^A-Za-z0-9-]+/', '-', $title)));
+        return $slug;
     }
 }

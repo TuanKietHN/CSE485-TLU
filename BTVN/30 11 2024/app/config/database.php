@@ -23,20 +23,13 @@ class Database {
     
     private function __construct() {
         try {
-            $this->connection = new PDO(
-                "mysql:host=" . DB_HOST . 
-                ";dbname=" . DB_NAME . 
-                ";charset=" . DB_CHARSET,
-                DB_USER,
-                DB_PASS,
-                DB_OPTIONS
-            );
+            $dsn = sprintf("mysql:host=%s;dbname=%s;charset=%s", 
+                DB_HOST, DB_NAME, DB_CHARSET);
+            
+            $this->connection = new PDO($dsn, DB_USER, DB_PASS, DB_OPTIONS);
         } catch (PDOException $e) {
-            if (DEBUG_MODE) {
-                die("Kết nối thất bại: " . $e->getMessage());
-            } else {
-                die("Không thể kết nối đến cơ sở dữ liệu. Vui lòng thử lại sau.");
-            }
+            error_log("Database Connection Error: " . $e->getMessage());
+            throw new Exception('Không thể kết nối database');
         }
     }
     
@@ -52,6 +45,19 @@ class Database {
     
     public function getConnection() {
         return $this->connection;
+    }
+    
+    // Thêm method transaction
+    public function beginTransaction() {
+        return $this->connection->beginTransaction();
+    }
+    
+    public function commit() {
+        return $this->connection->commit();
+    }
+    
+    public function rollBack() {
+        return $this->connection->rollBack();
     }
 }
 

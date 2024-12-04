@@ -3,13 +3,14 @@ session_start();
 
 require_once '../app/config/config.php';
 require_once '../app/config/database.php';
+require_once '../app/core/Router.php';
 
 // Autoload các class
 spl_autoload_register(function($className) {
     $paths = [
-        '../app/controllers/',
-        '../app/models/',
-        '../app/core/'
+        CONTROLLER_DIR . '/',
+        MODEL_DIR . '/',
+        CORE_DIR . '/'
     ];
 
     foreach($paths as $path) {
@@ -20,51 +21,38 @@ spl_autoload_register(function($className) {
         }
     }
 });
-// Default controller và method
-$defaultController = 'Article';
-$defaultMethod = 'index';
 
-// Simple routing
-$url = isset($_GET['url']) ? explode('/', filter_var(rtrim($_GET['url'], '/'), FILTER_SANITIZE_URL)) : [$defaultController];
-
-$controllerName = ucfirst($url[0]) . 'Controller';
-$methodName = isset($url[1]) ? $url[1] :  $defaultMethod;
-
-if (class_exists($controllerName)) {
-    $controller = new $controllerName();
-    if (method_exists($controller, $methodName)) {
-        $controller->$methodName();
-    } else {
-        // Handle 404
-        require_once '../app/views/shared/error.php';
-    }
-} else {
-    // Handle 404
-    require_once '../app/views/shared/error.php';
-}
+// Khởi tạo routes
+$routes = require_once APP_DIR . '/config/routes.php';
+Router::init($routes);
 
 // Xử lý routing
 try {
-    $url = isset($_GET['url']) ? explode('/', filter_var(rtrim($_GET['url'], '/'), FILTER_SANITIZE_URL)) : [$defaultController];
+    $url = isset($_GET['url']) ? rtrim($_GET['url'], '/') : '';
     
-    $controllerName = ucfirst($url[0]) . 'Controller';
-    $methodName = isset($url[1]) ? $url[1] : 'index';
+    $route = Router::resolve($url);
     
-    if (class_exists($controllerName)) {
-        $controller = new $controllerName();
-        if (method_exists($controller, $methodName)) {
-            $params = array_slice($url, 2);
-            call_user_func_array([$controller, $methodName], $params);
+    if ($route) {
+        $controllerName = $route['controller'];
+        $methodName = $route['action'];
+        
+        if (class_exists($controllerName)) {
+            $controller = new $controllerName();
+            if (method_exists($controller, $methodName)) {
+                call_user_func_array([$controller, $methodName], $route['params']);
+            } else {
+                throw new Exception("Phương thức {$methodName} không tồn tại trong {$controllerName}");
+            }
         } else {
-            throw new Exception("Phương thức không tồn tại");
+            throw new Exception("Controller {$controllerName} không tồn tại");
         }
     } else {
-        throw new Exception("Controller không tồn tại");
+        throw new Exception("Không tìm thấy route phù hợp");
     }
 } catch (Exception $e) {
     if (DEBUG_MODE) {
         echo "Error: " . $e->getMessage();
     } else {
-        require_once '../app/views/shared/error404.php';
+        require_once VIEW_DIR . '/shared/error404.php';
     }
 }

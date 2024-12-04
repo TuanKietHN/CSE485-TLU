@@ -7,7 +7,7 @@ class AuthController extends BaseController {
     }
     
     public function login() {
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        if ($this->isPost()) {
             try {
                 $username = trim($_POST['username']);
                 $password = $_POST['password'];
@@ -18,12 +18,10 @@ class AuthController extends BaseController {
                     throw new Exception('Tên đăng nhập hoặc mật khẩu không đúng');
                 }
                 
-                // Lưu thông tin đăng nhập vào session
                 $_SESSION['user_id'] = $member['id'];
                 $_SESSION['username'] = $member['username'];
                 
                 $this->redirect('/');
-                return;
                 
             } catch (Exception $e) {
                 $error = $e->getMessage();
@@ -36,20 +34,22 @@ class AuthController extends BaseController {
     }
     
     public function register() {
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        if ($this->isPost()) {
             try {
                 $data = [
                     'username' => trim($_POST['username']),
                     'email' => trim($_POST['email']),
-                    'password' => $_POST['password']
+                    'password' => $_POST['password'],
+                    'password_confirm' => $_POST['password_confirm']
                 ];
                 
-                $memberId = $this->memberModel->create($data);
+                if ($data['password'] !== $data['password_confirm']) {
+                    throw new Exception('Mật khẩu xác nhận không khớp');
+                }
                 
-                if ($memberId) {
+                if ($this->memberModel->register($data)) {
                     $_SESSION['success'] = 'Đăng ký thành công! Vui lòng đăng nhập.';
                     $this->redirect('/auth/login');
-                    return;
                 }
                 
             } catch (Exception $e) {

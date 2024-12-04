@@ -24,9 +24,12 @@
                     </li>
                 </ul>
                 <ul class="navbar-nav">
-                    <?php if (isset($_SESSION['user_id'])): ?>
+                    <?php if (isset($_SESSION['user'])): ?>
                         <li class="nav-item">
-                            <a class="nav-link" href="<?= BASE_URL ?>/members/profile">Tài khoản</a>
+                            <a class="nav-link" href="<?= BASE_URL ?>/article/create">Viết bài</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="<?= BASE_URL ?>/member/profile">Tài khoản</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="<?= BASE_URL ?>/auth/logout">Đăng xuất</a>

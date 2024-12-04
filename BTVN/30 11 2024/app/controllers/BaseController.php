@@ -1,18 +1,19 @@
 <?php
 abstract class BaseController {
-    protected function render($view, $data = []) {
-        $viewPath = VIEW_DIR . '/' . $view . '.php';
-        if (file_exists($viewPath)) {
-            extract($data);
-            require_once $viewPath;
-        } else {
-            throw new Exception("View không tồn tại: $view");
+    public function __construct() {
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
         }
     }
     
+    protected function render($view, $data = []) {
+        extract($data);
+        require_once VIEW_DIR . '/' . $view . '.php';
+    }
+    
     protected function redirect($url) {
-        header("Location: " . BASE_URL . $url);
-        exit();
+        header('Location: ' . BASE_URL . $url);
+        exit;
     }
     
     protected function isPost() {

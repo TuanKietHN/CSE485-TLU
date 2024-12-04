@@ -13,15 +13,15 @@ class CategoryController extends BaseController {
         $this->render('categories/index', ['categories' => $categories]);
     }
     
-    public function articles($categoryId) {
-        $category = $this->categoryModel->findById($categoryId);
+    public function articles($id) {
+        $category = $this->categoryModel->findById($id);
         if (!$category) {
             $this->redirect('/');
             return;
         }
         
         $options = [
-            'category_id' => $categoryId,
+            'category_id' => $id,
             'limit' => 10
         ];
         

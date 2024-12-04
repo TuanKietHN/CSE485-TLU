@@ -7,7 +7,7 @@
             <ul class="list-unstyled mb-0">
                 <?php foreach($categories as $category): ?>
                     <li class="mb-2">
-                        <a href="/articles?category=<?= $category['id'] ?>" class="text-decoration-none">
+                        <a href="<?= BASE_URL ?>/categories/articles/<?= $category['id'] ?>" class="text-decoration-none">
                             <?= htmlspecialchars($category['name']) ?>
                             <span class="badge bg-secondary float-end">
                                 <?= $category['article_count'] ?>
@@ -26,10 +26,10 @@
             </div>
             <div class="card-body">
                 <div class="d-grid gap-2">
-                    <a href="/articles/create" class="btn btn-primary btn-sm">
+                    <a href="<?= BASE_URL ?>/article/create" class="btn btn-primary btn-sm">
                         <i class="fas fa-plus"></i> Viết bài mới
                     </a>
-                    <a href="/members/profile" class="btn btn-info btn-sm">
+                    <a href="<?= BASE_URL ?>/members/profile" class="btn btn-info btn-sm">
                         <i class="fas fa-user"></i> Trang cá nhân
                     </a>
                 </div>

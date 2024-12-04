@@ -41,7 +41,7 @@
                         <a href="javascript:history.back()" class="btn btn-secondary">
                             <i class="fas fa-arrow-left me-2"></i>Quay lại
                         </a>
-                        <a href="<?= BASE_URL ?>" class="btn btn-primary">
+                        <a href="<?= BASE_URL ?>/" class="btn btn-primary">
                             <i class="fas fa-home me-2"></i>Trang chủ
                         </a>
                         <a href="<?= BASE_URL ?>/contact" class="btn btn-info text-white">

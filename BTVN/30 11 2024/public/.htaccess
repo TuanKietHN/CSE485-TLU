@@ -1,5 +1,5 @@
 RewriteEngine On
-RewriteBase /tlu/blog/
+RewriteBase /tlu/blog/public/
 
 # Nếu không phải file hoặc thư mục thật
 RewriteCond %{REQUEST_FILENAME} !-f
