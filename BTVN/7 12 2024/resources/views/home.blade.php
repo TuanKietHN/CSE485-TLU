@@ -331,9 +331,9 @@
                                     <label for="selectAll"></label>
                                 </span>
                             </th>
+                            <th>Id</th>
                             <th>Title</th>
                             <th>Content</th>
-                            <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -345,8 +345,9 @@
                                     <label for="checkbox1"></label>
                                 </span>
                             </td>
+                            <td>{{ $post->id }}</td>
                             <td>{{ $post->title }}</td>
-                            <td>{{ Str::limit($post->content, 50) }}</td>
+                            <td>{{ $post->content }}</td>
 
                             <td>
                                 <a href="#editEmployeeModal" class="edit" data-toggle="modal"><i class="material-icons" data-toggle="tooltip" title="Edit">&#xE254;</i></a>
