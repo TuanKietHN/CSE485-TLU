@@ -12,13 +12,13 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('medicines', function (Blueprint $table) {
-            $table->unsignedBigInteger('medicine_id')->primary(); // Khóa chính
-            $table->string('brand', 100); // Cột brand kiểu VARCHAR, giới hạn 100 ký tự
-            $table->string('dosage', 50); // Cột dosage kiểu VARCHAR, giới hạn 50 ký tự
-            $table->string('form', 100); // Cột brand kiểu VARCHAR, giới hạn 100 ký tự
-            $table->decimal('price', 10, 2); // Cột price kiểu DECIMAL, 10 số và 2 chữ số thập phân
-            $table->integer('stock'); // Cột stock kiểu INT
-            $table->timestamps(); // Tạo 2 cột created_at và updated_at
+            $table->unsignedBigInteger('medicine_id')->primary(); 
+            $table->string('brand', 100); 
+            $table->string('dosage', 50); 
+            $table->string('form', 100); 
+            $table->decimal('price', 10, 2);
+            $table->integer('stock'); 
+            $table->timestamps(); 
         });
     }
 

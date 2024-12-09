@@ -16,12 +16,12 @@ return new class extends Migration
             $table->unsignedBigInteger('computer_id');
             $table->string('reported_by',50)->nullable();
             $table->dateTime('reported_date');
-            $table->text('description')->nullable(); // Cột description kiểu TEXT, cho phép NULL
-            $table->enum('urgency', ['Low', 'Medium', 'High'])->default('Low'); // Cột urgency kiểu ENUM
-            $table->enum('status', ['Open', 'In Progress', 'Resolved'])->default('Open'); // Cột status kiểu ENUM
+            $table->text('description')->nullable(); 
+            $table->enum('urgency', ['Low', 'Medium', 'High'])->default('Low'); 
+            $table->enum('status', ['Open', 'In Progress', 'Resolved'])->default('Open'); 
             $table->timestamps();
             $table->foreign('computer_id')
-                ->references('id') // Tham chiếu đến cột medicines_id trong bảng medicines
+                ->references('id') 
                 ->on('computers')
                 ->onDelete('cascade'); 
         });

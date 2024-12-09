@@ -9,13 +9,14 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-    public function up(): void
+    public function up()
     {
-        Schema::create('classes', function (Blueprint $table) {
-            $table->increments('id'); 
-            $table->enum('grade_level', ['Pre-K', 'Kindergarten']); 
-            $table->string('room_number', 10); 
-            $table->timestamps();
+        Schema::create('it_centers', function (Blueprint $table) {
+            $table->id(); 
+            $table->string('name'); 
+            $table->string('location'); 
+            $table->string('contact_email'); 
+            $table->timestamps(); 
         });
     }
 
@@ -24,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('classes');
+        Schema::dropIfExists('it_centers');
     }
 };

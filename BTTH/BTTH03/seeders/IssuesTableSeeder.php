@@ -12,7 +12,7 @@ class IssuesTableSeeder extends Seeder
     {
         DB::table('issues')->insert([
             [
-                'computer_id' => 1, // ID của máy tính
+                'computer_id' => 1, 
                 'reported_by' => 'John Doe',
                 'reported_date' => Carbon::now(),
                 'description' => 'Screen flickers intermittently.',
